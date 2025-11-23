@@ -1,0 +1,18 @@
+Generate a personalized explanation of why this AI tool fits the user's specific workflow needs.
+
+Tool: {toolName}
+Tool Description: {toolDescription}
+Tool Strengths: {strengths}
+Tool Use Cases: {useCasePersonas}
+
+User's Workflow: {userWorkflow}
+User's Role: {userRole}
+User's Primary Tasks: {primaryTasks}
+
+Write a concise, friendly explanation (2-3 sentences) that:
+1. Connects the tool's capabilities to the user's specific tasks
+2. Highlights the most relevant features/strengths
+3. Explains the value in their context
+
+Keep it personal, helpful, and specific to their needs.
+
