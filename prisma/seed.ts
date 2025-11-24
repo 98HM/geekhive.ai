@@ -1,8 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 import { generateEmbedding } from '../lib/ai/embeddings'
 import { generateCanonicalText } from '../lib/db/vector'
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
+import 'dotenv/config'
 
-const prisma = new PrismaClient()
+const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaPg(pool)
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log('🌱 Starting seed...')
@@ -168,7 +173,17 @@ async function main() {
       enterpriseReady: toolData.enterpriseReady,
     })
 
-    const embedding = await generateEmbedding(canonicalText)
+    // Generate embedding only if API key is available
+    let embedding: number[] | null = null
+    if (process.env.OPENAI_API_KEY) {
+      try {
+        embedding = await generateEmbedding(canonicalText)
+      } catch (error) {
+        console.warn(`⚠️  Could not generate embedding for ${toolData.name}:`, error)
+      }
+    } else {
+      console.log(`⚠️  Skipping embedding for ${toolData.name} (OPENAI_API_KEY not set)`)
+    }
 
     // Create tool
     const tool = await prisma.tool.upsert({
@@ -189,7 +204,6 @@ async function main() {
         limitations: toolData.limitations,
         useCasePersonas: toolData.useCasePersonas,
         canonicalText,
-        embedding: embedding as any,
         status: 'APPROVED',
         approvedAt: new Date(),
         approvedBy: admin.id,
@@ -201,6 +215,16 @@ async function main() {
         },
       },
     })
+
+    // Update embedding using raw SQL if available
+    if (embedding) {
+      const embeddingString = `[${embedding.join(',')}]`
+      await prisma.$executeRawUnsafe(
+        `UPDATE tools SET embedding = $1::vector WHERE id = $2`,
+        embeddingString,
+        tool.id
+      )
+    }
 
     console.log(`✅ Created tool: ${tool.name}`)
   }
