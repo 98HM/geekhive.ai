@@ -10,8 +10,10 @@ export function Navbar() {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/find', label: 'Find Tools' },
     { href: '/tools', label: 'Browse' },
+    { href: '/compare', label: 'Compare' },
+    { href: '/find', label: 'Find AI' },
+    { href: '/about', label: 'About' },
   ]
 
   return (
@@ -58,10 +60,10 @@ export function Navbar() {
                   </Link>
                 )}
                 <Link
-                  href="/user"
+                  href="/dashboard"
                   className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
                 >
-                  Dashboard
+                  My account
                 </Link>
                 <button
                   onClick={() => signOut()}
@@ -71,12 +73,12 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => signIn('google')}
+              <Link
+                href="/auth/signin"
                 className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
                 Sign In
-              </button>
+              </Link>
             )}
           </div>
         </div>
@@ -84,4 +86,5 @@ export function Navbar() {
     </nav>
   )
 }
+
 

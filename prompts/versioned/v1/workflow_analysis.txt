@@ -20,3 +20,4 @@ Provide a structured analysis in JSON format:
   "searchQuery": "optimized search query for semantic matching"
 }
 
+

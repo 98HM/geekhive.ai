@@ -16,23 +16,59 @@ interface Tool {
   enterpriseReady: boolean
   integrations: string[]
   categories: Array<{ category: { name: string } }>
+  useCasePersonas?: string[]
 }
 
 export default function ComparePage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [tools, setTools] = useState<Tool[]>([])
+  const [allTools, setAllTools] = useState<Tool[]>([])
+  const [selectedToolA, setSelectedToolA] = useState<string>('')
+  const [selectedToolB, setSelectedToolB] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [loadingTools, setLoadingTools] = useState(true)
 
   useEffect(() => {
+    // Fetch all tools for dropdown
+    fetchAllTools()
+    
+    // Check for query params
+    const toolA = searchParams.get('toolA')
+    const toolB = searchParams.get('toolB')
     const toolIds = searchParams.get('toolIds')
-    if (!toolIds) {
-      router.push('/tools')
-      return
+    
+    if (toolA && toolB) {
+      setSelectedToolA(toolA)
+      setSelectedToolB(toolB)
+      fetchTools([toolA, toolB])
+    } else if (toolIds) {
+      const ids = toolIds.split(',')
+      if (ids.length >= 2) {
+        setSelectedToolA(ids[0])
+        setSelectedToolB(ids[1])
+        fetchTools(ids.slice(0, 2))
+      }
     }
-
-    fetchTools(toolIds.split(','))
   }, [searchParams, router])
+
+  const fetchAllTools = async () => {
+    try {
+      const response = await fetch('/api/tools?limit=100')
+      const data = await response.json()
+      setAllTools(data.tools || [])
+    } catch (error) {
+      console.error('Error fetching tools:', error)
+    } finally {
+      setLoadingTools(false)
+    }
+  }
+
+  const handleCompare = () => {
+    if (selectedToolA && selectedToolB) {
+      router.push(`/compare?toolA=${selectedToolA}&toolB=${selectedToolB}`)
+    }
+  }
 
   const fetchTools = async (toolIds: string[]) => {
     try {
@@ -78,6 +114,60 @@ export default function ComparePage() {
         </h1>
       </div>
 
+      {/* Tool Selection UI */}
+      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Select Tools to Compare
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tool A
+            </label>
+            <select
+              value={selectedToolA}
+              onChange={(e) => setSelectedToolA(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              disabled={loadingTools}
+            >
+              <option value="">Select a tool...</option>
+              {allTools.map((tool) => (
+                <option key={tool.id} value={tool.id}>
+                  {tool.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tool B
+            </label>
+            <select
+              value={selectedToolB}
+              onChange={(e) => setSelectedToolB(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+              disabled={loadingTools}
+            >
+              <option value="">Select a tool...</option>
+              {allTools
+                .filter((tool) => tool.id !== selectedToolA)
+                .map((tool) => (
+                  <option key={tool.id} value={tool.id}>
+                    {tool.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+        </div>
+        <button
+          onClick={handleCompare}
+          disabled={!selectedToolA || !selectedToolB}
+          className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Compare Tools
+        </button>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 border border-gray-200">
           <thead className="bg-gray-50">
@@ -114,6 +204,16 @@ export default function ComparePage() {
           <tbody className="divide-y divide-gray-200 bg-white">
             <tr>
               <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                Category
+              </td>
+              {tools.map((tool) => (
+                <td key={tool.id} className="px-6 py-4 text-sm text-gray-700">
+                  {tool.categories.map((cat) => cat.category.name).join(', ') || 'N/A'}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900">
                 Description
               </td>
               {tools.map((tool) => (
@@ -124,7 +224,39 @@ export default function ComparePage() {
             </tr>
             <tr>
               <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                Pricing Model
+                Use Cases
+              </td>
+              {tools.map((tool) => (
+                <td key={tool.id} className="px-6 py-4 text-sm text-gray-700">
+                  {tool.useCasePersonas && tool.useCasePersonas.length > 0 ? (
+                    <ul className="list-disc list-inside">
+                      {tool.useCasePersonas.slice(0, 3).map((useCase, i) => (
+                        <li key={i}>{useCase}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                Features
+              </td>
+              {tools.map((tool) => (
+                <td key={tool.id} className="px-6 py-4 text-sm text-gray-700">
+                  <ul className="list-disc list-inside">
+                    {tool.apiAvailable && <li>API Available</li>}
+                    {tool.enterpriseReady && <li>Enterprise Ready</li>}
+                    {tool.integrations.length > 0 && <li>{tool.integrations.length} Integrations</li>}
+                  </ul>
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                Pricing Summary
               </td>
               {tools.map((tool) => (
                 <td key={tool.id} className="px-6 py-4 text-sm text-gray-700">
@@ -168,13 +300,18 @@ export default function ComparePage() {
             </tr>
             <tr>
               <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                Integrations
+                API Availability / Integrations
               </td>
               {tools.map((tool) => (
                 <td key={tool.id} className="px-6 py-4 text-sm text-gray-700">
-                  {tool.integrations.length > 0
-                    ? tool.integrations.slice(0, 3).join(', ')
-                    : 'None'}
+                  <div className="space-y-1">
+                    <div>API: {tool.apiAvailable ? '✓ Yes' : '✗ No'}</div>
+                    <div>
+                      Integrations: {tool.integrations.length > 0
+                        ? tool.integrations.slice(0, 3).join(', ')
+                        : 'None'}
+                    </div>
+                  </div>
                 </td>
               ))}
             </tr>
@@ -184,4 +321,5 @@ export default function ComparePage() {
     </div>
   )
 }
+
 

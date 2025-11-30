@@ -129,12 +129,18 @@ export default function ToolDetailPage() {
             </div>
           </div>
           <div className="flex gap-2">
+            <Link
+              href={`/compare?toolA=${tool.id}`}
+              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Compare this tool
+            </Link>
             {session && (
               <button
                 onClick={toggleFavorite}
                 className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                {isFavorite ? '★ Favorited' : '☆ Favorite'}
+                {isFavorite ? '★ Saved' : '☆ Save'}
               </button>
             )}
             {tool.website && (
@@ -153,6 +159,35 @@ export default function ToolDetailPage() {
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-900">Description</h2>
           <p className="mt-2 text-gray-700">{tool.description}</p>
+        </div>
+
+        {/* Key Features Section */}
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold text-gray-900">Key Features</h2>
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {tool.apiAvailable && (
+              <div className="flex items-center gap-2 text-gray-700">
+                <span className="text-green-600">✓</span>
+                <span>API Available</span>
+              </div>
+            )}
+            {tool.enterpriseReady && (
+              <div className="flex items-center gap-2 text-gray-700">
+                <span className="text-green-600">✓</span>
+                <span>Enterprise Ready</span>
+              </div>
+            )}
+            {tool.integrations.length > 0 && (
+              <div className="flex items-center gap-2 text-gray-700">
+                <span className="text-green-600">✓</span>
+                <span>{tool.integrations.length} Integrations</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2 text-gray-700">
+              <span className="text-green-600">✓</span>
+              <span>Pricing: {tool.pricingModel}</span>
+            </div>
+          </div>
         </div>
 
         {tool.strengths.length > 0 && (
@@ -234,4 +269,5 @@ export default function ToolDetailPage() {
     </div>
   )
 }
+
 

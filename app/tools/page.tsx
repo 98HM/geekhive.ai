@@ -19,8 +19,23 @@ export default function ToolsPage() {
   const [tools, setTools] = useState<Tool[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [selectedType, setSelectedType] = useState<string>('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+
+  // Filter types (dummy data for now)
+  const filterTypes = [
+    'All',
+    'Image',
+    'Database',
+    'Workflow',
+    'Spreadsheet',
+    'Writing',
+    'Video',
+    'Audio',
+    'Development',
+    'Marketing',
+  ]
 
   useEffect(() => {
     fetchTools()
@@ -57,17 +72,44 @@ export default function ToolsPage() {
         </p>
       </div>
 
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search tools..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(1)
-          }}
-          className="w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-        />
+      {/* Filters */}
+      <div className="mb-6 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Filter by Type
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {filterTypes.map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => {
+                  setSelectedType(type === 'All' ? '' : type)
+                  setPage(1)
+                }}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  (type === 'All' && !selectedType) || selectedType === type
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Search tools..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
+            className="w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -82,12 +124,11 @@ export default function ToolsPage() {
         <>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {tools.map((tool) => (
-              <Link
+              <div
                 key={tool.id}
-                href={`/tools/${tool.id}`}
-                className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 flex-1">
                   {tool.logoUrl && (
                     <img
                       src={tool.logoUrl}
@@ -111,6 +152,14 @@ export default function ToolsPage() {
                           {cat.category.name}
                         </span>
                       ))}
+                      {tool.tags && tool.tags.slice(0, 1).map((tag) => (
+                        <span
+                          key={tag.tag.name}
+                          className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+                        >
+                          {tag.tag.name}
+                        </span>
+                      ))}
                     </div>
                     <div className="mt-3 flex gap-2 text-xs text-gray-500">
                       <span>{tool.pricingModel}</span>
@@ -119,7 +168,26 @@ export default function ToolsPage() {
                     </div>
                   </div>
                 </div>
-              </Link>
+                <div className="mt-4 flex gap-2">
+                  <Link
+                    href={`/tools/${tool.id}`}
+                    className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-500"
+                  >
+                    View details
+                  </Link>
+                  <button
+                    onClick={() => {
+                      // Placeholder: prepare query param for compare
+                      const currentToolId = tool.id
+                      // For now, just navigate to compare with this tool
+                      window.location.href = `/compare?toolA=${currentToolId}`
+                    }}
+                    className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Compare
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -149,4 +217,5 @@ export default function ToolsPage() {
     </div>
   )
 }
+
 

@@ -20,14 +20,73 @@ export default function Home() {
               href="/find"
               className="rounded-md bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
-              Get Started
+              Find the right AI for you
             </Link>
             <Link
               href="/tools"
               className="text-base font-semibold leading-7 text-gray-900"
             >
-              Browse Tools <span aria-hidden="true">→</span>
+              Browse AI tools <span aria-hidden="true">→</span>
             </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Hottest AI of the Month Section */}
+      <div className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              Hottest AI of the Month
+            </h2>
+            <p className="mt-2 text-lg leading-8 text-gray-600">
+              Trending AI tools that are making waves this month
+            </p>
+          </div>
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+            {/* Dummy data for trending tools */}
+            {[
+              {
+                name: 'ChatGPT',
+                description: 'The most popular AI assistant for conversation, coding, and creative tasks.',
+                category: 'Productivity',
+                trending: true,
+              },
+              {
+                name: 'Midjourney',
+                description: 'Revolutionary AI image generation that creates stunning artwork from text.',
+                category: 'Design',
+                trending: true,
+              },
+              {
+                name: 'GitHub Copilot',
+                description: 'AI pair programmer that helps developers write code faster and better.',
+                category: 'Development',
+                trending: true,
+              },
+            ].map((tool, index) => (
+              <div
+                key={index}
+                className="flex flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                    🔥 Trending
+                  </span>
+                  <span className="text-sm text-gray-500">{tool.category}</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {tool.name}
+                </h3>
+                <p className="text-sm text-gray-600 flex-1">{tool.description}</p>
+                <Link
+                  href="/tools"
+                  className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Learn more →
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -96,7 +155,13 @@ export default function Home() {
                 href="/find"
                 className="rounded-md bg-white px-6 py-3 text-base font-semibold text-blue-600 shadow-sm hover:bg-gray-50"
               >
-                Get Recommendations
+                Find the right AI for you
+              </Link>
+              <Link
+                href="/tools"
+                className="rounded-md border border-white/20 bg-white/10 px-6 py-3 text-base font-semibold text-white hover:bg-white/20"
+              >
+                Browse AI tools
               </Link>
             </div>
           </div>

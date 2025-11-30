@@ -70,3 +70,4 @@ Then update `.env`:
 DATABASE_URL="postgresql://$(whoami)@localhost:5432/geekhive?schema=public"
 ```
 
+

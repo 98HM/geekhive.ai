@@ -138,3 +138,4 @@ Make sure PostgreSQL is running:
 - Postgres.app: Check if the icon shows a running server
 - Homebrew: Run `brew services list` to check status
 
+
